@@ -40,7 +40,7 @@ export class DBProvider {
 
   //gets premade database at first usage of the app
   fillDatabase(){
-    this.http.get('assets/start.sql')
+    this.http.get('assets/starter.sql')
     .map(res => res.text())
     .subscribe(sql =>{
       this.sqlitePorter.importSqlToDb(this.database,sql)
@@ -65,7 +65,7 @@ export class DBProvider {
   }
 
   public getItems(parent){
-    let sql:string = 'SELECT * FROM item WHERE item_id ';
+    let sql:string = 'SELECT * FROM item WHERE item_parent ';
     if(parent === null){
       sql += 'is null';
     }else{
@@ -92,7 +92,7 @@ export class DBProvider {
   }
 
   public getCategories(parent){
-    let sql:string = 'SELECT * FROM category WHERE category_id ';
+    let sql:string = 'SELECT * FROM category WHERE category_parent ';
     if(parent === null){
       sql += 'is null';
     }else{
@@ -118,13 +118,8 @@ export class DBProvider {
     });
   }
 
-  public getLists(parent){
-    let sql:string = 'SELECT * FROM lists WHERE lists_id ';
-    if(parent === null){
-      sql += 'is null';
-    }else{
-      sql+= '= ' + parent;
-    }
+  public getLists(){
+    let sql:string = 'SELECT * FROM lists;';
     return this.database.executeSql(sql,{})
     .then((data)=>{
       return data;
