@@ -5,6 +5,7 @@ import { SQLitePorter } from '@ionic-native/sqlite-porter';
 import { Item, Category, Lists, ItemList } from '../../app/models/models';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
+import { BehaviorSubject } from 'rxjs/Rx';
 import { Storage } from '@ionic/storage';
 /*
   Generated class for the DbProvider provider.
@@ -17,46 +18,39 @@ export class DBProvider {
 
   dbName: string = 'Home.db';
   database: SQLiteObject;
+  private databaseReady: BehaviorSubject<boolean>;
 
 
-  constructor(private sqlite: SQLite,private sqlitePorter: SQLitePorter, private http: Http, private storage: Storage) {
-    console.log('Hello DbProvider Provider');
+  constructor(private sqlite: SQLite,private sqlitePorter: SQLitePorter, private http: Http, private storage: Storage, private platform: Platform) {
+    this.databaseReady = new BehaviorSubject(false);
+    this.platform.ready().then(()=>{
+      this.sqlite.create({name: this.dbName,location: 'default'})
+      .then((db: SQLiteObject) =>{
+        this.database = db;
+        this.storage.get('database_filled').then(val => {
+          if (val) {
+            this.databaseReady.next(true);
+          } else {
+            this.fillDatabase();
+          }
+        });
+      });
+    });
   }
 
-  public loadDatabase(){
-    return new Promise((resolve,reject)=>{
-      this.sqlite.create({name: this.dbName,location: 'default'})
-        .then((db: SQLiteObject) =>{
-          this.database = db;
-          this.http.get('assets/start.sql')
-            .map(res => res.text())
-            .subscribe(sql =>{
-              this.sqlitePorter.importSqlToDb(this.database,sql)
-                .then(data =>{
-                  this.storage.set('dbLoaded',true);
-                  resolve("database loaded!");
-                })
-                .catch(e => {
-                  console.log(e)
-                  reject('Error loading database. Please try again')
-                });
-            });
-          // //creates category table
-          // db.executeSql('CREATE TABLE IF NOT EXISTS category(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, parent_id INTEGER, FOREIGN KEY(parent_id) REFERENCES category(id));',{})
-          //   .then(data =>{console.log("created category table")}).catch(error =>{console.log("Didn't create category table.")});
-          // //creates item table
-          // db.executeSql('CREATE TABLE IF NOT EXISTS item(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT, description TEXT, parent_id INTEGER,category_id INTEGER, number_times_used INTEGER, price TEXT, pic_location TEXT , FOREIGN KEY(parent_id) REFERENCES item(id), FOREIGN KEY(category_id) REFERENCES category(id));',{})
-          //   .then(data =>{console.log("created item table")}).catch(error =>{console.log("Didn't create item table.")});
-          // //creates lists table
-          // db.executeSql('CREATE TABLE IF NOT EXISTS lists(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, name TEXT);',{})
-          //   .then(data =>{console.log("created list table")}).catch(error =>{console.log("Didn't create list table.")});
-          // //creates item_list table
-          // db.executeSql('CREATE TABLE IF NOT EXISTS item_list(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, list_id INTEGER, item_id INTEGER, FOREIGN KEY(item_id) REFERENCES item(id),FOREIGN KEY(list_id) REFERENCES lists(id));',{})
-          //   .then(data =>{console.log("created item_list table")}).catch(error =>{console.log("Didn't create item_lists table.")});
+  //gets premade database at first usage of the app
+  fillDatabase(){
+    this.http.get('assets/start.sql')
+    .map(res => res.text())
+    .subscribe(sql =>{
+      this.sqlitePorter.importSqlToDb(this.database,sql)
+        .then(data =>{
+          this.storage.set('database_filled',true);
+          console.log("database loaded!");
         })
-        .catch(error =>{
-          reject('Error opening database. Please try again.');
-        })
+        .catch(e => {
+          console.log(e)
+        });
     });
   }
 
@@ -70,6 +64,23 @@ export class DBProvider {
     });
   }
 
+  public getItems(parent){
+    let sql:string = 'SELECT * FROM item WHERE item_id ';
+    if(parent === null){
+      sql += 'is null';
+    }else{
+      sql+= '= ' + parent;
+    }
+    return this.database.executeSql(sql,{})
+    .then((data)=>{
+      return data;
+    })
+    .catch((err)=>{
+      console.log(err);
+      return err;
+    })
+  }
+
   public createCategory(category: Category){
     return this.database.executeSql('INSERT INTO category VALUES('+ category.toString() +')',{})
     .then(data => {
@@ -78,6 +89,23 @@ export class DBProvider {
       console.log('Error: ', err);
       return err;
     });
+  }
+
+  public getCategories(parent){
+    let sql:string = 'SELECT * FROM category WHERE category_id ';
+    if(parent === null){
+      sql += 'is null';
+    }else{
+      sql+= '= ' + parent;
+    }
+    return this.database.executeSql(sql,{})
+    .then((data)=>{
+      return data;
+    })
+    .catch((err)=>{
+      console.log(err);
+      return err;
+    })
   }
 
   public createList(lists: Lists){
@@ -90,6 +118,23 @@ export class DBProvider {
     });
   }
 
+  public getLists(parent){
+    let sql:string = 'SELECT * FROM lists WHERE lists_id ';
+    if(parent === null){
+      sql += 'is null';
+    }else{
+      sql+= '= ' + parent;
+    }
+    return this.database.executeSql(sql,{})
+    .then((data)=>{
+      return data;
+    })
+    .catch((err)=>{
+      console.log(err);
+      return err;
+    })
+  }
+
   public addItemtoList(lists: Lists, item: Item){
     return this.database.executeSql('INSERT INTO item_list VALUES(NULL,'+ item.getItemId() + ',' + lists.getListId() +')',{})
     .then(data => {
@@ -98,6 +143,10 @@ export class DBProvider {
       console.log('Error: ', err);
       return err;
     });
+  }
+
+  public getDatabaseState() {
+    return this.databaseReady.asObservable();
   }
 }
 
