@@ -20,7 +20,9 @@ import { DBProvider } from '../providers/db/db';
   imports: [
     BrowserModule,
     HttpModule,
-    IonicModule.forRoot(MyApp),
+    IonicModule.forRoot(MyApp,{
+      tabsHighlight: true
+    }),
     IonicStorageModule.forRoot()
   ],
   bootstrap: [IonicApp],
