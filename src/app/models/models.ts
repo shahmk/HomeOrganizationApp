@@ -6,16 +6,18 @@ export class Item{
   private itemDesc: string;
   private parentId: number;
   private categoryId: number;
+  private roomId: number;
   private numberTimesUsed: number;
   private price: string;
   private pic_location: string;
 
-	constructor($itemId: number, $itemName: string, $itemDesc: string, $parentId: number, $categoryId: number, $numberTimesUsed: number, $price: string, $pic_location: string) {
+	constructor($itemId: number, $itemName: string, $itemDesc: string, $parentId: number, $categoryId: number, $roomId: number,$numberTimesUsed: number, $price: string, $pic_location: string) {
 		this.itemId = $itemId;
 		this.itemName = $itemName;
 		this.itemDesc = $itemDesc;
 		this.parentId = $parentId;
-		this.categoryId = $categoryId;
+    this.categoryId = $categoryId;
+    this.roomId = $roomId;
 		this.numberTimesUsed = $numberTimesUsed;
 		this.price = $price;
 		this.pic_location = $pic_location;
@@ -26,7 +28,7 @@ export class Item{
   }
 
   public toString(): string{
-    return '' + this.itemId + ',' + this.itemName + ',' + this.itemDesc + ',' + this.parentId + ',' + this.categoryId + ',' + this.numberTimesUsed + ',' + this.price + ',' + this.pic_location;
+    return '' + this.itemDesc + ',' + this.parentId + ',' + this.categoryId + ',' + this.roomId + ',' + this.numberTimesUsed + ',' + this.price + ',' + this.pic_location;
   }
 }
 
@@ -42,7 +44,7 @@ export class Category{
   }
   
   public toString(): string{
-    return '' + this.categoryId + ',' + this.categoryName + ',' + this.parentId;
+    return '' + this.categoryName + ',' + this.parentId;
   }
   
 }
@@ -57,7 +59,7 @@ export class Lists{
   }
   
   public toString(): string{
-    return '' + this.listId + ',' + this.listName;
+    return ''  + this.listName;
   }
 
   public getListId():number{
@@ -79,7 +81,18 @@ export class ItemList{
   }
   
   public toString(): string{
-    return '' + this.id + ',' + this.listId + ',' + this.itemId;
+    return '' + this.listId + ',' + this.itemId;
   }
   
+}
+
+export class Room{
+  private roomId: number;
+  private roomName: string;
+
+  constructor($roomId: number, $roomName: string) {
+    this.roomId = $roomId;
+    this.roomName = $roomName;
+  }
+
 }

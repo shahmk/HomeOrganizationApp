@@ -23,6 +23,9 @@ export class DBProvider {
 
   constructor(private sqlite: SQLite,private sqlitePorter: SQLitePorter, private http: Http, private storage: Storage, private platform: Platform) {
     this.databaseReady = new BehaviorSubject(false);
+    if(!this.platform.is('cordova')){
+      return;
+    }
     this.platform.ready().then(()=>{
       this.sqlite.create({name: this.dbName,location: 'default'})
       .then((db: SQLiteObject) =>{
