@@ -22,4 +22,8 @@ export class ItemPage {
     console.log('ionViewDidLoad ItemPage');
   }
 
+  createItem(){
+    
+  }
+
 }

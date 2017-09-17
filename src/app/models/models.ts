@@ -11,16 +11,16 @@ export class Item{
   private price: string;
   private pic_location: string;
 
-	constructor($itemId: number, $itemName: string, $itemDesc: string, $parentId: number, $categoryId: number, $roomId: number,$numberTimesUsed: number, $price: string, $pic_location: string) {
-		this.itemId = $itemId;
-		this.itemName = $itemName;
-		this.itemDesc = $itemDesc;
-		this.parentId = $parentId;
-    this.categoryId = $categoryId;
-    this.roomId = $roomId;
-		this.numberTimesUsed = $numberTimesUsed;
-		this.price = $price;
-		this.pic_location = $pic_location;
+	constructor(obj) {
+		this.itemId = obj.itemId;
+		this.itemName = obj.itemName;
+		this.itemDesc = obj.itemDesc;
+		this.parentId = obj.parentId;
+    this.categoryId = obj.categoryId;
+    this.roomId = obj.roomId;
+		this.numberTimesUsed = obj.numberTimesUsed;
+		this.price = obj.price;
+		this.pic_location = obj.pic_location;
   }
   
   public getItemId():number{
@@ -90,9 +90,9 @@ export class Room{
   private roomId: number;
   private roomName: string;
 
-  constructor($roomId: number, $roomName: string) {
-    this.roomId = $roomId;
-    this.roomName = $roomName;
+  constructor(obj) {
+    this.roomId = obj.roomId;
+    this.roomName = obj.roomName;
   }
 
 }

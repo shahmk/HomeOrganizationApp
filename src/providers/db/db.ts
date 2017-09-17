@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Platform } from 'ionic-angular';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite';
 import { SQLitePorter } from '@ionic-native/sqlite-porter';
-import { Item, Category, Lists, ItemList } from '../../app/models/models';
+import { Item, Category, Lists, ItemList, Room } from '../../app/models/models';
 import { Http } from '@angular/http';
 import 'rxjs/add/operator/map';
 import { BehaviorSubject } from 'rxjs/Rx';
@@ -67,12 +67,12 @@ export class DBProvider {
     });
   }
 
-  public getItems(parent){
-    let sql:string = 'SELECT * FROM item WHERE item_parent ';
-    if(parent === null){
+  public getRoomItems(room){
+    let sql:string = 'SELECT * FROM item WHERE room_id ';
+    if(room === null){
       sql += 'is null';
     }else{
-      sql+= '= ' + parent;
+      sql+= '= ' + room;
     }
     return this.database.executeSql(sql,{})
     .then((data)=>{
@@ -135,6 +135,33 @@ export class DBProvider {
 
   public addItemtoList(lists: Lists, item: Item){
     return this.database.executeSql('INSERT INTO item_list VALUES(NULL,'+ item.getItemId() + ',' + lists.getListId() +')',{})
+    .then(data => {
+      return data;
+    }, err => {
+      console.log('Error: ', err);
+      return err;
+    });
+  }
+
+  public getRooms(){
+    return this.database.executeSql('SELECT * FROM room',{})
+    .then(data => {
+      let rooms = [];
+      if(data.row.length > 0){
+        for(var i = 0; i < data.row.length; i++){
+          rooms.push({room_id: data.rows.item(i).room_id,room_name: data.rows.item(i).room_name})
+        }
+      }
+      return rooms;
+    }, err => {
+      console.log('Error: ', err);
+      return err;
+    });
+  }
+
+  public createRoom(roomName: string){
+    console.log(roomName);
+    return this.database.executeSql('INSERT INTO room(room_name) VALUES(?)',[roomName])
     .then(data => {
       return data;
     }, err => {
