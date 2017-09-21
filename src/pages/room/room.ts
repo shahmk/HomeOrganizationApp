@@ -33,7 +33,7 @@ export class RoomPage {
     })
     .catch(err =>{
       this.showError(err);
-    })
+    });
   }
 
   createRoom(){
@@ -49,6 +49,7 @@ export class RoomPage {
             }else{
               this.db.createRoom(data[0])
               .then(data =>{
+                this.loadRooms();
                 console.log(data);
               })
               .catch(error =>{

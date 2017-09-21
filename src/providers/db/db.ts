@@ -147,8 +147,8 @@ export class DBProvider {
     return this.database.executeSql('SELECT * FROM room',{})
     .then(data => {
       let rooms = [];
-      if(data.row.length > 0){
-        for(var i = 0; i < data.row.length; i++){
+      if(data.rows.length > 0){
+        for(var i = 0; i < data.rows.length; i++){
           rooms.push({room_id: data.rows.item(i).room_id,room_name: data.rows.item(i).room_name})
         }
       }
